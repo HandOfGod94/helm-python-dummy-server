@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: localhost:32000/python-app 
-  tag: 0.1.0
+  tag: 0.2.0
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -21,11 +21,11 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
   hosts:
     - host: localhost
       paths:
         - /
+        - /calculate
 
   #  tls: []
   #  - secretName: chart-example-tls

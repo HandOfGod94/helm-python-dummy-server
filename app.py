@@ -1,79 +1,38 @@
 #!/usr/bin/env python
-"""
-Very simple HTTP server in python (Updated for Python 3.7)
 
-Usage:
+import flask
+from flask_wtf import FlaskForm
+from wtforms import IntegerField
+from flask import render_template, request
+from flask_wtf.csrf import CSRFProtect
 
-    ./dummy-web-server.py -h
-    ./dummy-web-server.py -l localhost -p 8000
-
-Send a GET request:
-
-    curl http://localhost:8000
-
-Send a HEAD request:
-
-    curl -I http://localhost:8000
-
-Send a POST request:
-
-    curl -d "foo=bar&bin=baz" http://localhost:8000
-
-"""
-import argparse
-from http.server import HTTPServer, BaseHTTPRequestHandler
+app = flask.Flask(__name__)
+csrf = CSRFProtect(app)
+app.config['SECRET_KEY'] = 'SECRET_KEY'
 
 
-class S(BaseHTTPRequestHandler):
-    def _set_headers(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-
-    def _html(self, message):
-        """This just generates an HTML document that includes `message`
-        in the body. Override, or re-write this do do more interesting stuff.
-
-        """
-        content = f"<html><body><h1>{message}</h1></body></html>"
-        return content.encode("utf8")  # NOTE: must return a bytes object!
-
-    def do_GET(self):
-        self._set_headers()
-        self.wfile.write(self._html("hi!"))
-
-    def do_HEAD(self):
-        self._set_headers()
-
-    def do_POST(self):
-        # Doesn't do anything with posted data
-        self._set_headers()
-        self.wfile.write(self._html("POST!"))
+class CalculatorForm(FlaskForm):
+    value1 = IntegerField('value1')
+    value2 = IntegerField('value2')
 
 
-def run(server_class=HTTPServer, handler_class=S, addr="localhost", port=8000):
-    server_address = (addr, port)
-    httpd = server_class(server_address, handler_class)
+@app.route('/')
+def index():
+    return "Hello World"
 
-    print(f"Starting httpd server on {addr}:{port}")
-    httpd.serve_forever()
+
+@app.route('/calculate', methods=['GET', 'POST'])
+def calculate():
+    form = CalculatorForm()
+    app.logger.info("Request Headers %s", request.headers)
+    if form.validate_on_submit():
+        value1 = request.form['value1']
+        value2 = request.form['value2']
+        result = int(value1) + int(value2)
+        return render_template('calculator.jinja2', form=form, result=result)
+    return render_template('calculator.jinja2', form=form)
 
 
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(description="Run a simple HTTP server")
-    parser.add_argument(
-        "-l",
-        "--listen",
-        default="0.0.0.0",
-        help="Specify the IP address on which the server listens",
-    )
-    parser.add_argument(
-        "-p",
-        "--port",
-        type=int,
-        default=8000,
-        help="Specify the port on which the server listens",
-    )
-    args = parser.parse_args()
-    run(addr=args.listen, port=args.port)
+    app.debug = True
+    app.run(host='0.0.0.0', port=7001)

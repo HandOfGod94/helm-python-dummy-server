@@ -1,2 +1,3 @@
-/gahan-python-app-chart-0.1.7.tgz
+/gahan-python-app-chart-*.tgz
 /.idea
+/.venv

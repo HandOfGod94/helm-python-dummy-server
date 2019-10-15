@@ -1,14 +1,14 @@
 .PHONY: build-image 
 build-image:
-	docker build -t localhost:32000/python-app:0.1.0 .
+	docker build -t localhost:32000/python-app:0.2.0 .
 
 .PHONY: push-image 
 push-image:
-	docker push localhost:32000/python-app:0.1.0
+	docker push localhost:32000/python-app:0.2.0
 
 .PHONY: run
 run:
-	docker run -it --name gahan_python_app localhost:32000/python-app:0.1.0
+	docker run -it --name gahan_python_app  -p 7001:7001 localhost:32000/python-app:0.2.0
 
 .PHONY: start
 start:
@@ -24,4 +24,4 @@ rm:
 
 .PHONY: delete-im
 delete-im:
-	docker image rm localhost:32000/python-app:0.1.0
+	docker image rm localhost:32000/python-app:0.2.0
